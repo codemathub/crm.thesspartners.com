@@ -468,7 +468,7 @@ export const api = {
       }>;
     }>(`/search/property-matches/${propertyId}?limit=${limit}`),
 
-  // Visits & Operational Hub
+  // Visits & Schedule
   getVisits: (params: {
     status?: string;
     claim_status?: string;

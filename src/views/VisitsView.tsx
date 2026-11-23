@@ -380,7 +380,7 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '10px', fontWeight: 800, color: themeTokens.colors.primaryDark, letterSpacing: '0.08em' }}>
-              ● OPERATIONAL HUB
+              ● DAILY SCHEDULE
             </span>
             <span
               style={{
