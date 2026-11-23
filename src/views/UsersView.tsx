@@ -201,7 +201,7 @@ export const UsersView: React.FC<UsersViewProps> = ({ currentUser }) => {
               setResetError('');
             }}
           />
-          {u.role !== 'super_admin' && currentUser?.role === 'super_admin' && (
+          {currentUser?.role === 'super_admin' && u.role !== 'super_admin' ? (
             <>
               {u.account_status === 'active' ? (
                 <Button
@@ -228,7 +228,7 @@ export const UsersView: React.FC<UsersViewProps> = ({ currentUser }) => {
                 onClick={() => handleDeleteUser(u)}
               />
             </>
-          )}
+          ) : null}
         </div>
       ),
     },
@@ -510,7 +510,7 @@ export const UsersView: React.FC<UsersViewProps> = ({ currentUser }) => {
                   setSelectedUser(null);
                 }}
               />
-              {selectedUser.role !== 'super_admin' && currentUser?.role === 'super_admin' && (
+              {currentUser?.role === 'super_admin' && selectedUser.role !== 'super_admin' ? (
                 <>
                   {selectedUser.account_status === 'active' ? (
                     <Button
@@ -537,7 +537,7 @@ export const UsersView: React.FC<UsersViewProps> = ({ currentUser }) => {
                     onClick={() => handleDeleteUser(selectedUser)}
                   />
                 </>
-              )}
+              ) : null}
             </div>
           </div>
         </Modal>
