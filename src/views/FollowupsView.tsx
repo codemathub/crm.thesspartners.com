@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { themeTokens } from '../theme/tokens';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -1107,7 +1107,7 @@ export const FollowupsView: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
-                    backgroundColor: '#EEF0F8',
+                    backgroundColor: '#EFF6FF',
                     color: themeTokens.colors.primaryDark,
                     padding: '8px 12px',
                     borderRadius: '6px',

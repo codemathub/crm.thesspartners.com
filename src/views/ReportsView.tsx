@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -310,7 +310,7 @@ export const ReportsView: React.FC = () => {
       {/* Inventory Status Composition */}
       <div style={{ backgroundColor: '#FFFFFF', padding: '20px', borderRadius: '12px', border: `1px solid ${themeTokens.colors.border}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-          <Building size={18} color="#4F5278" />
+          <Building size={18} color="#1D4ED8" />
           <span style={{ fontSize: '14px', fontWeight: 800, color: '#1F2937' }}>Inventory Status Composition</span>
         </div>
 

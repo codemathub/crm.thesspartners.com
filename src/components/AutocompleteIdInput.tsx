@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { themeTokens } from '../theme/tokens';
 import { api } from '../services/api';
 import { Search, X, Check, Building, FileText, User } from 'lucide-react';
@@ -105,7 +105,7 @@ export const AutocompleteIdInput: React.FC<AutocompleteIdInputProps> = ({
   const getEntityIcon = (type: string) => {
     switch (type) {
       case 'property':
-        return <Building size={14} color="#4F5278" />;
+        return <Building size={14} color="#1D4ED8" />;
       case 'enquiry':
         return <FileText size={14} color="#6366F1" />;
       case 'customer':
@@ -126,7 +126,7 @@ export const AutocompleteIdInput: React.FC<AutocompleteIdInputProps> = ({
     if (b === 'UNDER_NEGOTIATION' || b === 'WARM') {
       return { background: '#FEF08A', color: '#854D0E' };
     }
-    return { background: '#EEF0F8', color: '#4F5278' };
+    return { background: '#EFF6FF', color: '#1D4ED8' };
   };
 
   return (
@@ -147,7 +147,7 @@ export const AutocompleteIdInput: React.FC<AutocompleteIdInputProps> = ({
         style={{
           display: 'flex',
           alignItems: 'center',
-          border: `1.5px solid ${isOpen ? '#4F5278' : themeTokens.colors.border}`,
+          border: `1.5px solid ${isOpen ? '#1D4ED8' : themeTokens.colors.border}`,
           borderRadius: isOpen ? '6px 6px 0 0' : '6px',
           padding: '6px 10px',
           backgroundColor: '#FFFFFF',
@@ -239,7 +239,7 @@ export const AutocompleteIdInput: React.FC<AutocompleteIdInputProps> = ({
             left: 0,
             right: 0,
             background: '#FFFFFF',
-            border: '1.5px solid #4F5278',
+            border: '1.5px solid #1D4ED8',
             borderTop: 'none',
             borderRadius: '0 0 8px 8px',
             maxHeight: '220px',

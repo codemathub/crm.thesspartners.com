@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Lock, User, Eye, EyeOff, AlertCircle, Building } from 'lucide-react';
+﻿import React, { useState } from 'react';
+import { Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { api, setAuthToken } from '../services/api';
 
 interface LoginViewProps {
@@ -75,40 +75,37 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
         }}
       >
-        {/* Brand Header */}
+        {/* G² Brothers Real Brand Logo Header */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
             <div
               style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
-                backgroundColor: '#4F5278',
-                display: 'flex',
+                backgroundColor: '#020912',
+                borderRadius: '16px',
+                padding: '6px 16px',
+                border: '1px solid #1E293B',
+                display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#FFFFFF',
               }}
             >
-              <Building size={20} color="#FFFFFF" />
-            </div>
-            <div style={{ fontSize: '24px', fontWeight: 800, lineHeight: 1, color: '#1F2937' }}>
-              Estate<span style={{ color: '#4F5278' }}>CRM</span>
+              <img src="/logo.png" alt="G² Brothers" style={{ height: '70px', objectFit: 'contain' }} />
             </div>
           </div>
           <span
             style={{
               display: 'inline-block',
-              marginTop: '10px',
-              backgroundColor: '#EEF0F8',
-              color: '#4F5278',
+              backgroundColor: '#EFF6FF',
+              color: '#1D4ED8',
               fontSize: '11px',
-              fontWeight: 700,
-              padding: '3px 10px',
+              fontWeight: 800,
+              letterSpacing: '0.5px',
+              padding: '4px 12px',
               borderRadius: '6px',
+              border: '1px solid #BFDBFE',
             }}
           >
-            Enterprise Operations Console
+            ENTERPRISE CRM CONSOLE
           </span>
         </div>
 
@@ -240,7 +237,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
             type="submit"
             disabled={loading}
             style={{
-              backgroundColor: '#4F5278',
+              backgroundColor: '#1D4ED8',
               color: '#FFFFFF',
               border: 'none',
               borderRadius: '8px',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import {
   Bell,
   CheckCircle2,
@@ -219,7 +219,7 @@ export const NotificationPopover: React.FC<NotificationPopoverProps> = ({ onNavi
     switch (type) {
       case 'task_assigned':
       case 'task':
-        return <CheckCircle2 size={16} color="#4F5278" />;
+        return <CheckCircle2 size={16} color="#1D4ED8" />;
       case 'visit_assigned':
       case 'visit_scheduled':
       case 'visit_claim':
@@ -261,7 +261,7 @@ export const NotificationPopover: React.FC<NotificationPopoverProps> = ({ onNavi
               width: '36px',
               height: '36px',
               borderRadius: '10px',
-              backgroundColor: '#4F5278',
+              backgroundColor: '#1D4ED8',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -293,7 +293,7 @@ export const NotificationPopover: React.FC<NotificationPopoverProps> = ({ onNavi
                 setToastNotif(null);
               }}
               style={{
-                backgroundColor: '#4F5278',
+                backgroundColor: '#1D4ED8',
                 color: '#FFFFFF',
                 border: 'none',
                 padding: '5px 10px',

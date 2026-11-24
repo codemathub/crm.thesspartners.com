@@ -239,9 +239,9 @@ export const App: React.FC = () => {
         <div style={{ padding: '16px 18px', borderBottom: `1px solid ${themeTokens.colors.border}`, backgroundColor: '#020912' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img
-              src="/favicon.svg"
+              src="/favicon.png"
               alt="G² Brothers"
-              style={{ width: '36px', height: '36px', borderRadius: '8px' }}
+              style={{ width: '38px', height: '38px', borderRadius: '8px', objectFit: 'contain' }}
             />
             <div>
               <div style={{ fontSize: '15px', fontWeight: 800, lineHeight: 1.1, color: '#FFFFFF', letterSpacing: '0.04em' }}>

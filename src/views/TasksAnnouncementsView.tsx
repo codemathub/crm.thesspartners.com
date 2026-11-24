@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { themeTokens } from '../theme/tokens';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -353,7 +353,7 @@ export const TasksAnnouncementsView: React.FC = () => {
                   padding: '5px 12px',
                   borderRadius: '16px',
                   border: `1px solid ${statusFilter === st ? themeTokens.colors.primaryDark : themeTokens.colors.border}`,
-                  backgroundColor: statusFilter === st ? '#EEF0F8' : '#FFFFFF',
+                  backgroundColor: statusFilter === st ? '#EFF6FF' : '#FFFFFF',
                   color: statusFilter === st ? themeTokens.colors.primaryDark : themeTokens.colors.textSecondary,
                   fontSize: '12px',
                   fontWeight: 600,
@@ -432,8 +432,8 @@ export const TasksAnnouncementsView: React.FC = () => {
                         style={{
                           fontSize: '11px',
                           fontWeight: 600,
-                          backgroundColor: '#EEF0F8',
-                          color: '#4F5278',
+                          backgroundColor: '#EFF6FF',
+                          color: '#1D4ED8',
                           padding: '2px 8px',
                           borderRadius: '12px',
                         }}
@@ -474,7 +474,7 @@ export const TasksAnnouncementsView: React.FC = () => {
                             {task.target_client_phone && (
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
                                 <span style={{ fontSize: '11px', color: '#64748B' }}>{task.target_client_phone}</span>
-                                <a href={`tel:${task.target_client_phone}`} style={{ color: '#4F5278' }} title="Call Client"><Phone size={11} /></a>
+                                <a href={`tel:${task.target_client_phone}`} style={{ color: '#1D4ED8' }} title="Call Client"><Phone size={11} /></a>
                                 <a href={`https://wa.me/${task.target_client_phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#10B981' }} title="WhatsApp Client"><MessageCircle size={11} /></a>
                               </div>
                             )}
@@ -509,7 +509,7 @@ export const TasksAnnouncementsView: React.FC = () => {
                           alignItems: 'center',
                           gap: '6px',
                           fontSize: '12px',
-                          color: '#4F5278',
+                          color: '#1D4ED8',
                           fontWeight: 600,
                         }}
                       >
@@ -595,7 +595,7 @@ export const TasksAnnouncementsView: React.FC = () => {
                 style={{
                   backgroundColor: '#FFFFFF',
                   border: '1px solid #E5E7EB',
-                  borderLeft: '4px solid #4F5278',
+                  borderLeft: '4px solid #1D4ED8',
                   borderRadius: '10px',
                   padding: '16px 20px',
                   display: 'flex',
@@ -610,7 +610,7 @@ export const TasksAnnouncementsView: React.FC = () => {
                         fontSize: '11px',
                         fontWeight: 700,
                         textTransform: 'uppercase',
-                        color: '#4F5278',
+                        color: '#1D4ED8',
                         letterSpacing: '0.5px',
                       }}
                     >
@@ -652,7 +652,7 @@ export const TasksAnnouncementsView: React.FC = () => {
                   padding: '4px 10px',
                   borderRadius: '14px',
                   border: `1px solid ${!notificationUnreadOnly ? themeTokens.colors.primaryDark : themeTokens.colors.border}`,
-                  backgroundColor: !notificationUnreadOnly ? '#EEF0F8' : '#FFFFFF',
+                  backgroundColor: !notificationUnreadOnly ? '#EFF6FF' : '#FFFFFF',
                   color: !notificationUnreadOnly ? themeTokens.colors.primaryDark : themeTokens.colors.textSecondary,
                   fontSize: '11px',
                   fontWeight: 600,
@@ -668,7 +668,7 @@ export const TasksAnnouncementsView: React.FC = () => {
                   padding: '4px 10px',
                   borderRadius: '14px',
                   border: `1px solid ${notificationUnreadOnly ? themeTokens.colors.primaryDark : themeTokens.colors.border}`,
-                  backgroundColor: notificationUnreadOnly ? '#EEF0F8' : '#FFFFFF',
+                  backgroundColor: notificationUnreadOnly ? '#EFF6FF' : '#FFFFFF',
                   color: notificationUnreadOnly ? themeTokens.colors.primaryDark : themeTokens.colors.textSecondary,
                   fontSize: '11px',
                   fontWeight: 600,

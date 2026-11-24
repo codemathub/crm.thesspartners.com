@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { themeTokens } from '../theme/tokens';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -557,7 +557,7 @@ export const PasswordResetQueueView: React.FC<PasswordResetQueueViewProps> = ({
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#4F5278',
+                    color: '#1D4ED8',
                     fontSize: '11px',
                     fontWeight: 700,
                     cursor: 'pointer',

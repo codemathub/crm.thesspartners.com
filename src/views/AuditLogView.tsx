@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -250,7 +250,7 @@ export const AuditLogView: React.FC = () => {
         };
       default:
         return {
-          icon: <Activity size={15} color="#4F5278" />,
+          icon: <Activity size={15} color="#1D4ED8" />,
           bg: themeTokens.colors.softSurface,
           border: themeTokens.colors.border,
           color: themeTokens.colors.primaryDark,
