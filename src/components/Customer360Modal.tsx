@@ -104,12 +104,12 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={cust ? `Customer 360° Profile — ${cust.name}` : 'Loading Customer Dossier...'}
+      title={cust ? `Customer Details — ${cust.name}` : 'Loading Customer Details...'}
       maxWidth="860px"
     >
       {loading && !data ? (
         <div style={{ padding: '40px', textAlign: 'center', color: themeTokens.colors.textSecondary }}>
-          <div style={{ fontSize: '14px', fontWeight: 600 }}>Loading 360-degree customer details...</div>
+          <div style={{ fontSize: '14px', fontWeight: 600 }}>Loading customer details...</div>
         </div>
       ) : !cust ? (
         <div style={{ padding: '24px', textAlign: 'center', color: '#B91C1C' }}>
@@ -229,7 +229,7 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
           {/* Navigation Tabs */}
           <div style={{ display: 'flex', gap: '6px', borderBottom: `1px solid ${themeTokens.colors.border}`, paddingBottom: '8px' }}>
             {[
-              { id: 'overview', label: 'Panoramic 360° Overview' },
+              { id: 'overview', label: 'Customer Overview & Details' },
               { id: 'enquiries', label: `Enquiries (${enquiries.length})` },
               { id: 'visits', label: `Site Visits (${visits.length})` },
               { id: 'followups', label: `Notes & Calls (${followups.length})` },

@@ -391,7 +391,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
         <span
           onClick={() => setCustomer360Id(c.customer_id)}
           style={{ fontWeight: 800, color: themeTokens.colors.primaryDark, cursor: 'pointer', textDecoration: 'underline' }}
-          title="Open Customer 360° Profile"
+          title="Open Customer Details"
         >
           {c.customer_id}
         </span>
@@ -404,7 +404,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
         <span
           onClick={() => setCustomer360Id(c.customer_id)}
           style={{ fontWeight: 600, cursor: 'pointer', color: '#1E293B' }}
-          title="Open Customer 360° Profile"
+          title="Open Customer Details"
         >
           {c.name}
         </span>
@@ -433,7 +433,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
       render: (c) => (
         <div style={{ display: 'flex', gap: '6px' }}>
           <Button
-            label="360° Dossier"
+            label="Details"
             icon={<Eye size={13} />}
             variant="outline"
             size="sm"
@@ -488,7 +488,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
             if (targetId) setCustomer360Id(targetId);
           }}
           style={{ cursor: 'pointer' }}
-          title="Click to view full 360° Customer Profile"
+          title="Click to view Customer Details"
         >
           <div
             style={{
@@ -1495,7 +1495,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
                         </>
                       )}
                       <Button
-                        label="360°"
+                        label="Details"
                         icon={<Eye size={12} />}
                         size="sm"
                         variant="primary"
