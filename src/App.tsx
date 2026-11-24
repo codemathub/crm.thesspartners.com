@@ -239,16 +239,17 @@ export const App: React.FC = () => {
         <div style={{ padding: '16px 18px', borderBottom: `1px solid ${themeTokens.colors.border}`, backgroundColor: '#020912' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img
-              src="/favicon.png"
+              src="/g2-tile.png"
               alt="G² Brothers"
-              style={{ width: '38px', height: '38px', borderRadius: '8px', objectFit: 'contain' }}
+              style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'cover' }}
             />
+            <div style={{ width: '1px', height: '26px', backgroundColor: '#334155' }} />
             <div>
-              <div style={{ fontSize: '15px', fontWeight: 800, lineHeight: 1.1, color: '#FFFFFF', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '15px', fontWeight: 900, lineHeight: 1.1, color: '#FFFFFF', letterSpacing: '0.04em' }}>
                 G² BROTHERS
               </div>
-              <div style={{ fontSize: '9px', fontWeight: 700, color: '#F59E0B', letterSpacing: '0.08em', marginTop: '3px' }}>
-                BUILDING VALUE
+              <div style={{ fontSize: '7.5px', fontWeight: 800, color: '#F59E0B', letterSpacing: '0.08em', marginTop: '3px' }}>
+                BUILDING VALUE | CREATING LEGACY
               </div>
             </div>
           </div>
