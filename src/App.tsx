@@ -32,6 +32,7 @@ import { LoginView } from './views/LoginView';
 import { GlobalSearchModal } from './components/GlobalSearchModal';
 import { Customer360Modal } from './components/Customer360Modal';
 import { PropertyMatchedCustomersModal } from './components/PropertyMatchedCustomersModal';
+import { NotificationPopover } from './components/NotificationPopover';
 import { api, getAuthToken, removeAuthToken } from './services/api';
 
 export type NavItem =
@@ -408,31 +409,7 @@ export const App: React.FC = () => {
               </kbd>
             </div>
 
-            <button
-              style={{
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                color: themeTokens.colors.textSecondary,
-                position: 'relative',
-                padding: '6px',
-              }}
-              title="Tasks, Notices & Directives"
-              onClick={() => setActiveNav('tasks')}
-            >
-              <Bell size={18} />
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '4px',
-                  right: '4px',
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '3px',
-                  backgroundColor: themeTokens.colors.danger,
-                }}
-              />
-            </button>
+            <NotificationPopover onNavigate={(nav) => setActiveNav(nav as any)} />
           </div>
         </header>
 
