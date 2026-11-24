@@ -335,7 +335,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                           <Badge label={c.priority?.toUpperCase() || 'NORMAL'} variant={c.priority === 'hot' ? 'danger' : 'warning'} />
                           {onSelectCustomer360 && (
                             <Button
-                              label="Customer Details"
+                              label="Details"
                               size="sm"
                               variant="primary"
                               icon={<Sparkles size={12} />}
