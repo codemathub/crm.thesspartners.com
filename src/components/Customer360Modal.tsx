@@ -622,11 +622,9 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
                         <div style={{ fontSize: '12px', color: '#475569', marginTop: '4px' }}>
                           Scheduled: {v.scheduled_at ? formatDateTime(v.scheduled_at) : 'TBD'}
                         </div>
-                        {v.assigned_name && (
-                          <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>
-                            Executive In-Charge: <strong>{v.assigned_name}</strong>
-                          </div>
-                        )}
+                        <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>
+                          Showing Executive: <strong>{v.assigned_name || v.claimed_by_name || 'Bhaskar Joshi'}</strong>
+                        </div>
                       </div>
                       <Badge label={v.status} variant={v.status === 'completed' ? 'success' : 'warning'} />
                     </div>
