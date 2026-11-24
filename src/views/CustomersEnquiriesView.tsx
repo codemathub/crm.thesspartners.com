@@ -113,6 +113,46 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
   const [matchesList, setMatchesList] = useState<any[]>([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
 
+  // Schedule Showing from Matches Modal State
+  const [scheduleShowingProp, setScheduleShowingProp] = useState<any | null>(null);
+  const [showingDateTime, setShowingDateTime] = useState('');
+  const [showingNotes, setShowingNotes] = useState('');
+  const [schedulingVisit, setSchedulingVisit] = useState(false);
+
+  const openScheduleFromMatch = (prop: any) => {
+    setScheduleShowingProp(prop);
+    const now = new Date();
+    now.setHours(now.getHours() + 2);
+    now.setMinutes(0);
+    const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setShowingDateTime(localIso);
+    setShowingNotes(`Site visit showing for #${prop.property_id} at ${prop.society_name || 'Society'}`);
+  };
+
+  const handleConfirmScheduleShowing = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!matchesModalEnquiry || !scheduleShowingProp || !showingDateTime) return;
+    setSchedulingVisit(true);
+    try {
+      await api.createVisit({
+        enquiry_id: matchesModalEnquiry.enquiry_id,
+        property_id: scheduleShowingProp.property_id,
+        scheduled_at: new Date(showingDateTime).toISOString(),
+        notes: showingNotes.trim() || undefined,
+      });
+      alert(`Site showing scheduled for Unit #${scheduleShowingProp.property_id}!`);
+      setScheduleShowingProp(null);
+      fetchEnquiries();
+      if (selectedEnquiryDetail) {
+        openEnquiryDetail(selectedEnquiryDetail);
+      }
+    } catch (err: any) {
+      alert(err.message || 'Could not schedule visit.');
+    } finally {
+      setSchedulingVisit(false);
+    }
+  };
+
   const openMatchesModal = async (enquiry: any) => {
     setMatchesModalEnquiry(enquiry);
     setLoadingMatches(true);
@@ -1321,19 +1361,28 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
                       </div>
 
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                        <Button
-                          label="Close Deal"
-                          variant="primary"
-                          size="sm"
-                          onClick={() => {
-                            const enq = matchesModalEnquiry;
-                            setMatchesModalEnquiry(null);
-                            setStatusModalEnquiry(enq);
-                            setNewStatus('deal_closed');
-                            setDealPropertyId(prop.property_id);
-                            setDealAmount(prop.expected_amount);
-                          }}
-                        />
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <Button
+                            label="Schedule Showing"
+                            variant="primary"
+                            size="sm"
+                            icon={<Calendar size={12} />}
+                            onClick={() => openScheduleFromMatch(prop)}
+                          />
+                          <Button
+                            label="Close Deal"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const enq = matchesModalEnquiry;
+                              setMatchesModalEnquiry(null);
+                              setStatusModalEnquiry(enq);
+                              setNewStatus('deal_closed');
+                              setDealPropertyId(prop.property_id);
+                              setDealAmount(prop.expected_amount);
+                            }}
+                          />
+                        </div>
                         <a
                           href={waUrl}
                           target="_blank"
@@ -1368,6 +1417,96 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
               <Button label="Close" variant="outline" size="sm" onClick={() => setMatchesModalEnquiry(null)} />
             </div>
           </div>
+        </Modal>
+      )}
+
+      {/* Schedule Showing Sub-Modal from Matches */}
+      {scheduleShowingProp && matchesModalEnquiry && (
+        <Modal
+          isOpen={!!scheduleShowingProp}
+          onClose={() => setScheduleShowingProp(null)}
+          title={`Schedule Showing — Unit #${scheduleShowingProp.property_id}`}
+          maxWidth="480px"
+        >
+          <form onSubmit={handleConfirmScheduleShowing} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div
+              style={{
+                backgroundColor: '#FAF5FF',
+                border: '1px solid #DDD6FE',
+                borderRadius: '8px',
+                padding: '12px 14px',
+              }}
+            >
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#4C1D95' }}>
+                #{scheduleShowingProp.property_id} • {scheduleShowingProp.society_name}
+              </div>
+              <div style={{ fontSize: '12px', color: '#6B21A8', marginTop: '4px' }}>
+                {scheduleShowingProp.property_type} • {scheduleShowingProp.location} • ₹{(scheduleShowingProp.expected_amount || 0).toLocaleString('en-IN')}{scheduleShowingProp.transaction_type === 'rent' ? '/mo' : ''}
+              </div>
+            </div>
+
+            <div style={{ fontSize: '12px', color: '#475569', backgroundColor: '#F8FAFC', padding: '8px 12px', borderRadius: '6px' }}>
+              Enquiry: <strong>#{matchesModalEnquiry.enquiry_id}</strong> — {matchesModalEnquiry.customer_name} ({matchesModalEnquiry.customer_phone})
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                Showing Date & Time *
+              </label>
+              <input
+                type="datetime-local"
+                value={showingDateTime}
+                onChange={(e) => setShowingDateTime(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #CBD5E1',
+                  fontSize: '13px',
+                  boxSizing: 'border-box',
+                }}
+                required
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                Showing Instructions & Notes
+              </label>
+              <textarea
+                value={showingNotes}
+                onChange={(e) => setShowingNotes(e.target.value)}
+                rows={2}
+                placeholder="e.g. Client requested key from security desk"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #CBD5E1',
+                  fontSize: '13px',
+                  boxSizing: 'border-box',
+                  resize: 'vertical',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
+              <Button
+                label="Cancel"
+                variant="outline"
+                size="sm"
+                onClick={() => setScheduleShowingProp(null)}
+                type="button"
+              />
+              <Button
+                label={schedulingVisit ? 'Scheduling...' : 'Confirm Showing'}
+                variant="primary"
+                size="sm"
+                disabled={schedulingVisit || !showingDateTime}
+                type="submit"
+              />
+            </div>
+          </form>
         </Modal>
       )}
 

@@ -14,6 +14,7 @@ import {
   ExternalLink,
   MessageCircle,
   Plus,
+  Calendar,
 } from 'lucide-react';
 
 interface Customer360ModalProps {
@@ -37,6 +38,53 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
   const [newNote, setNewNote] = useState('');
   const [submittingNote, setSubmittingNote] = useState(false);
   const [showClosedEnquiries, setShowClosedEnquiries] = useState(false);
+
+  // Schedule Showing Modal State inside Customer Details
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [scheduleProp, setScheduleProp] = useState<any>(null);
+  const [scheduleEnquiryId, setScheduleEnquiryId] = useState('');
+  const [scheduleDateTime, setScheduleDateTime] = useState('');
+  const [scheduleNotes, setScheduleNotes] = useState('');
+  const [submittingSchedule, setSubmittingSchedule] = useState(false);
+
+  const handleOpenScheduleModal = (prop: any) => {
+    setScheduleProp(prop);
+    const activeEnq = (data?.enquiries || []).find((e: any) => !['deal_closed', 'aborted', 'cancelled'].includes(e.status)) || data?.enquiries?.[0];
+    setScheduleEnquiryId(activeEnq?.enquiry_id || '');
+    const now = new Date();
+    now.setHours(now.getHours() + 2);
+    now.setMinutes(0);
+    const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setScheduleDateTime(localIso);
+    setScheduleNotes(`Client site visit showing for unit #${prop.property_id} at ${prop.society_name || 'Society'}`);
+    setScheduleModalOpen(true);
+  };
+
+  const handleConfirmSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!scheduleEnquiryId || !scheduleProp || !scheduleDateTime) {
+      alert('Please select an active enquiry and visit date/time.');
+      return;
+    }
+    setSubmittingSchedule(true);
+    try {
+      await api.createVisit({
+        enquiry_id: scheduleEnquiryId,
+        property_id: scheduleProp.property_id,
+        scheduled_at: new Date(scheduleDateTime).toISOString(),
+        notes: scheduleNotes.trim() || undefined,
+      });
+      alert(`Site showing scheduled for Unit #${scheduleProp.property_id}!`);
+      setScheduleModalOpen(false);
+      setScheduleProp(null);
+      await fetch360();
+      setActiveTab('visits');
+    } catch (err: any) {
+      alert(err.message || 'Failed to schedule visit.');
+    } finally {
+      setSubmittingSchedule(false);
+    }
+  };
 
   const fetch360 = async () => {
     if (!customerId) return;
@@ -437,8 +485,15 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
                           <div style={{ fontSize: '13px', fontWeight: 800, color: '#1E293B', marginTop: '6px' }}>
                             ₹{(p.expected_amount ?? 0).toLocaleString('en-IN')}{p.transaction_type === 'rent' ? '/mo' : ''}
                           </div>
-                          {onNavigateToProperty && (
-                            <div style={{ marginTop: '8px', textAlign: 'right' }}>
+                          <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
+                            <Button
+                              label="Schedule Showing"
+                              size="sm"
+                              variant="primary"
+                              icon={<Calendar size={12} />}
+                              onClick={() => handleOpenScheduleModal(p)}
+                            />
+                            {onNavigateToProperty && (
                               <Button
                                 label="View Unit"
                                 size="sm"
@@ -448,8 +503,8 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
                                   onNavigateToProperty(p.property_id);
                                 }}
                               />
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       );
                     })}
@@ -689,6 +744,13 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
 
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <Button
+                          label="Schedule Showing"
+                          size="sm"
+                          variant="primary"
+                          icon={<Calendar size={12} />}
+                          onClick={() => handleOpenScheduleModal(p)}
+                        />
+                        <Button
                           label="WhatsApp Share"
                           size="sm"
                           variant="outline"
@@ -703,7 +765,7 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
                           <Button
                             label="View Unit"
                             size="sm"
-                            variant="primary"
+                            variant="outline"
                             onClick={() => {
                               onClose();
                               onNavigateToProperty(p.property_id);
@@ -718,6 +780,149 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
             </div>
           )}
         </div>
+      )}
+
+      {/* Internal Schedule Site Showing Modal */}
+      {scheduleModalOpen && scheduleProp && (
+        <Modal
+          isOpen={scheduleModalOpen}
+          onClose={() => setScheduleModalOpen(false)}
+          title={`Schedule Site Showing — Unit #${scheduleProp.property_id}`}
+          maxWidth="520px"
+        >
+          <form onSubmit={handleConfirmSchedule} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {/* Property Summary Pill */}
+            <div
+              style={{
+                backgroundColor: '#FAF5FF',
+                border: '1px solid #DDD6FE',
+                borderRadius: '8px',
+                padding: '12px 14px',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '14px', fontWeight: 800, color: '#4C1D95' }}>
+                  #{scheduleProp.property_id} • {scheduleProp.society_name}
+                </span>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    backgroundColor: '#EDE9FE',
+                    color: '#6D28D9',
+                    padding: '2px 8px',
+                    borderRadius: '6px',
+                  }}
+                >
+                  {scheduleProp.transaction_type?.toUpperCase()}
+                </span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#6B21A8', marginTop: '4px' }}>
+                {scheduleProp.bhk || scheduleProp.property_type} • {scheduleProp.location} • ₹{(scheduleProp.expected_amount || 0).toLocaleString('en-IN')}{scheduleProp.transaction_type === 'rent' ? '/mo' : ''}
+              </div>
+            </div>
+
+            {/* Client summary */}
+            {cust && (
+              <div style={{ fontSize: '12px', color: '#475569', backgroundColor: '#F8FAFC', padding: '8px 12px', borderRadius: '6px' }}>
+                Client: <strong>{cust.name}</strong> ({cust.primary_phone})
+              </div>
+            )}
+
+            {/* Target Enquiry Selector */}
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                Target Requirement / Enquiry *
+              </label>
+              {enquiries.length === 0 ? (
+                <div style={{ fontSize: '12px', color: '#B91C1C', backgroundColor: '#FEF2F2', padding: '8px 12px', borderRadius: '6px' }}>
+                  This customer has no active requirements. Please add an enquiry first.
+                </div>
+              ) : (
+                <select
+                  value={scheduleEnquiryId}
+                  onChange={(e) => setScheduleEnquiryId(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '13px',
+                    backgroundColor: '#FFFFFF',
+                  }}
+                  required
+                >
+                  {enquiries.map((e: any) => (
+                    <option key={e.enquiry_id} value={e.enquiry_id}>
+                      #{e.enquiry_id} — {e.looking_for || e.requirement_summary || 'Requirement'} ({e.transaction_type?.toUpperCase()})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {/* Showing Date & Time */}
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                Showing Date & Time *
+              </label>
+              <input
+                type="datetime-local"
+                value={scheduleDateTime}
+                onChange={(e) => setScheduleDateTime(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #CBD5E1',
+                  fontSize: '13px',
+                  boxSizing: 'border-box',
+                }}
+                required
+              />
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                Showing Instructions & Notes
+              </label>
+              <textarea
+                value={scheduleNotes}
+                onChange={(e) => setScheduleNotes(e.target.value)}
+                rows={2}
+                placeholder="e.g. Client requested evening showing, wants clubhouse tour"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #CBD5E1',
+                  fontSize: '13px',
+                  boxSizing: 'border-box',
+                  resize: 'vertical',
+                }}
+              />
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
+              <Button
+                label="Cancel"
+                variant="outline"
+                size="sm"
+                onClick={() => setScheduleModalOpen(false)}
+                type="button"
+              />
+              <Button
+                label={submittingSchedule ? 'Scheduling...' : 'Confirm Visit'}
+                variant="primary"
+                size="sm"
+                disabled={submittingSchedule || !scheduleEnquiryId || !scheduleDateTime}
+                type="submit"
+              />
+            </div>
+          </form>
+        </Modal>
       )}
     </Modal>
   );
