@@ -1,5 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#4F5278"/>
-  <path d="M7 25V11L16 6L25 11V25H7Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M13 25V17H19V25" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#020912"/>
+      <stop offset="100%" stop-color="#0A1428"/>
+    </linearGradient>
+    <linearGradient id="blueG" x1="6" y1="12" x2="26" y2="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="50%" stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#0B214D"/>
+    </linearGradient>
+    <linearGradient id="gold2" x1="18" y1="14" x2="42" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="40%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="48" height="48" rx="12" fill="url(#bg)"/>
+  <rect x="0.5" y="0.5" width="47" height="47" rx="11.5" stroke="#1E293B" stroke-width="1"/>
+  <!-- G Shape -->
+  <path d="M26 14H16C11.5817 14 8 17.5817 8 22V26C8 30.4183 11.5817 34 16 34H24C25.1046 34 26 33.1046 26 32V25H18" stroke="url(#blueG)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 2 Shape with Interlock -->
+  <path d="M22 17C23 14 26 13 29 13C33 13 36 15.5 36 19.5C36 24 30 27 24 34H38" stroke="url(#gold2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

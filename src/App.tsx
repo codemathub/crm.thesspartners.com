@@ -202,7 +202,7 @@ export const App: React.FC = () => {
       >
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '18px', fontWeight: 700, color: themeTokens.colors.textPrimary, marginBottom: '8px' }}>
-            EstateFlow Super Admin
+            G² Brothers CRM
           </div>
           <div style={{ fontSize: '13px', color: themeTokens.colors.textSecondary }}>
             Verifying secure session...
@@ -236,24 +236,20 @@ export const App: React.FC = () => {
         }}
       >
         {/* Brand */}
-        <div style={{ padding: '20px 20px 18px', borderBottom: `1px solid ${themeTokens.colors.border}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                backgroundColor: themeTokens.colors.primaryDark,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#FFFFFF',
-              }}
-            >
-              <Building size={18} color="#FFFFFF" />
-            </div>
-            <div style={{ fontSize: '20px', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.02em', color: themeTokens.colors.textPrimary }}>
-              Estate<span style={{ color: themeTokens.colors.primaryDark }}>CRM</span>
+        <div style={{ padding: '16px 18px', borderBottom: `1px solid ${themeTokens.colors.border}`, backgroundColor: '#020912' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img
+              src="/favicon.svg"
+              alt="G² Brothers"
+              style={{ width: '36px', height: '36px', borderRadius: '8px' }}
+            />
+            <div>
+              <div style={{ fontSize: '15px', fontWeight: 800, lineHeight: 1.1, color: '#FFFFFF', letterSpacing: '0.04em' }}>
+                G² BROTHERS
+              </div>
+              <div style={{ fontSize: '9px', fontWeight: 700, color: '#F59E0B', letterSpacing: '0.08em', marginTop: '3px' }}>
+                BUILDING VALUE
+              </div>
             </div>
           </div>
           <span
