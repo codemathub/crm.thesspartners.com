@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Modal } from './ui/Modal';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
@@ -209,7 +209,7 @@ export const PropertyMatchedCustomersModal: React.FC<PropertyMatchedCustomersMod
                         variant="outline"
                         icon={<MessageCircle size={12} color="#16A34A" />}
                         onClick={() => {
-                          const text = `*EstateCRM Match Proposal*\nProperty ID: ${property.property_id}\nType: ${property.property_type}\nSociety: ${property.society_name}, ${property.location}\nAmount: ₹${(property.expected_amount ?? 0).toLocaleString('en-IN')}${property.transaction_type === 'rent' ? '/month' : ''}\nStatus: Available`;
+                          const text = `*G² Brothers CRM Match Proposal*\nProperty ID: ${property.property_id}\nType: ${property.property_type}\nSociety: ${property.society_name}, ${property.location}\nAmount: ₹${(property.expected_amount ?? 0).toLocaleString('en-IN')}${property.transaction_type === 'rent' ? '/month' : ''}\nStatus: Available`;
                           const url = `https://wa.me/${enq.customer_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(text)}`;
                           window.open(url, '_blank');
                         }}

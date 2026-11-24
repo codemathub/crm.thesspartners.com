@@ -91,7 +91,7 @@ export const NotificationPopover: React.FC<NotificationPopoverProps> = ({ onNavi
       setPermission(res);
       if (res === 'granted') {
         playChime();
-        new Notification('EstateCRM Notifications Enabled', {
+        new Notification('G² Brothers CRM Notifications Enabled', {
           body: 'You will now receive real-time Chrome desktop popups for tasks, visits, and directives.',
           icon: '/favicon.ico',
         });

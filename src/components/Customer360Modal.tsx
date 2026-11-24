@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { formatDateTime, formatDate } from '../utils/dateUtils';
 import { Modal } from './ui/Modal';
 import { Badge } from './ui/Badge';
@@ -755,7 +755,7 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
                           variant="outline"
                           icon={<MessageCircle size={12} color="#16A34A" />}
                           onClick={() => {
-                            const text = `*EstateCRM Property Match*\nUnit: ${p.property_id} (${p.property_type})\nSociety: ${p.society_name}, ${p.location}\nAmount: ₹${(p.expected_amount ?? 0).toLocaleString('en-IN')}${p.transaction_type === 'rent' ? '/month' : ''}\nStatus: Available`;
+                            const text = `*G² Brothers CRM Property Match*\nUnit: ${p.property_id} (${p.property_type})\nSociety: ${p.society_name}, ${p.location}\nAmount: ₹${(p.expected_amount ?? 0).toLocaleString('en-IN')}${p.transaction_type === 'rent' ? '/month' : ''}\nStatus: Available`;
                             const url = `https://wa.me/${cust.primary_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(text)}`;
                             window.open(url, '_blank');
                           }}

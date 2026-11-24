@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { formatDateTime } from '../utils/dateUtils';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -314,7 +314,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
       `• *Maintenance:* ${p.maintenance_mode === 'included' ? 'Included' : `₹${p.maintenance_amount || 0}/mo extra`}\n` +
       (p.security_deposit ? `• *Deposit:* ₹${p.security_deposit.toLocaleString('en-IN')}\n` : '') +
       (p.tenant_type ? `• *Tenant Preference:* ${p.tenant_type}\n` : '') +
-      `\nContact EstateFlow for immediate showing or keys custody verification.`;
+      `\nContact G² Brothers CRM for immediate showing or keys custody verification.`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 

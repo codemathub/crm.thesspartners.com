@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -1311,7 +1311,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
                 {matchesList.map((m: any) => {
                   const prop = m.property;
                   const shareText = encodeURIComponent(
-                    `*EstateCRM Match Proposal*\nProperty ID: ${prop.property_id}\nType: ${prop.property_type}\nSociety: ${prop.society_name}\nLocation: ${prop.location}\nAmount: ₹${(prop.expected_amount ?? 0).toLocaleString('en-IN')}${prop.transaction_type === 'rent' ? '/month' : ''}\nStatus: Available`
+                    `*G² Brothers CRM Match Proposal*\nProperty ID: ${prop.property_id}\nType: ${prop.property_type}\nSociety: ${prop.society_name}\nLocation: ${prop.location}\nAmount: ₹${(prop.expected_amount ?? 0).toLocaleString('en-IN')}${prop.transaction_type === 'rent' ? '/month' : ''}\nStatus: Available`
                   );
                   const waUrl = `https://wa.me/?text=${shareText}`;
                   return (

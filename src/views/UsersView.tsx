@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -325,7 +325,7 @@ export const UsersView: React.FC<UsersViewProps> = ({ currentUser }) => {
               </label>
               <input
                 type="email"
-                placeholder="e.g. rahul.sharma@estatecrm.com"
+                placeholder="e.g. rahul.sharma@g2brothers.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{
