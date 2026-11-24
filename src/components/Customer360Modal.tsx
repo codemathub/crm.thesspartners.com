@@ -36,6 +36,7 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
   const [activeTab, setActiveTab] = useState<'overview' | 'enquiries' | 'visits' | 'followups' | 'matches'>('overview');
   const [newNote, setNewNote] = useState('');
   const [submittingNote, setSubmittingNote] = useState(false);
+  const [showClosedEnquiries, setShowClosedEnquiries] = useState(false);
 
   const fetch360 = async () => {
     if (!customerId) return;
@@ -459,55 +460,85 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
           )}
 
           {/* TAB: Enquiries */}
-          {activeTab === 'enquiries' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {enquiries.length === 0 ? (
-                <div style={{ padding: '24px', textAlign: 'center', color: '#6B7280' }}>
-                  No enquiries recorded.
-                </div>
-              ) : (
-                enquiries.map((enq: any) => (
-                  <div
-                    key={enq.enquiry_id || enq.id}
-                    style={{
-                      padding: '14px',
-                      borderRadius: '8px',
-                      border: `1px solid ${themeTokens.colors.border}`,
-                      backgroundColor: '#FFFFFF',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '14px', fontWeight: 800, color: '#111827' }}>
-                            {enq.looking_for}
-                          </span>
-                          <span style={{ fontSize: '11px', fontFamily: 'monospace', color: '#64748B', fontWeight: 700 }}>
-                            #{enq.enquiry_id}
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '12px', color: '#475569', marginTop: '4px' }}>
-                          Budget: <strong>₹{(enq.budget_min ?? 0).toLocaleString('en-IN')} - ₹{(enq.budget_max ?? 0).toLocaleString('en-IN')}</strong> ({enq.transaction_type?.toUpperCase()})
-                        </div>
-                      </div>
-                      <Badge label={enq.status.replace(/_/g, ' ')} variant="neutral" />
-                    </div>
+          {activeTab === 'enquiries' && (() => {
+            const activeEnqs = enquiries.filter((e: any) => !['deal_closed', 'aborted', 'closed_won', 'closed_lost', 'cancelled'].includes(e.status));
+            const closedCount = enquiries.length - activeEnqs.length;
+            const displayed = showClosedEnquiries ? enquiries : activeEnqs;
 
-                    {enq.preferred_societies?.length > 0 && (
-                      <div style={{ fontSize: '11px', color: '#64748B', marginTop: '6px' }}>
-                        Preferred Societies: {enq.preferred_societies.join(', ')}
-                      </div>
-                    )}
-                    {enq.notes && (
-                      <div style={{ fontSize: '11px', color: '#334155', fontStyle: 'italic', marginTop: '4px' }}>
-                        "{enq.notes}"
-                      </div>
-                    )}
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>
+                    {showClosedEnquiries ? `All Enquiries (${enquiries.length})` : `Active Requirements (${activeEnqs.length})`}
+                  </span>
+                  {closedCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowClosedEnquiries(!showClosedEnquiries)}
+                      style={{
+                        background: 'none',
+                        border: '1px solid #CBD5E1',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: '#4338CA',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {showClosedEnquiries ? 'Hide Closed / Dropped' : `Show Closed / Dropped (${closedCount})`}
+                    </button>
+                  )}
+                </div>
+
+                {displayed.length === 0 ? (
+                  <div style={{ padding: '24px', textAlign: 'center', color: '#6B7280' }}>
+                    {showClosedEnquiries ? 'No enquiries recorded.' : 'No active enquiries. Click "Show Closed" to view past history.'}
                   </div>
-                ))
-              )}
-            </div>
-          )}
+                ) : (
+                  displayed.map((enq: any) => (
+                    <div
+                      key={enq.enquiry_id || enq.id}
+                      style={{
+                        padding: '14px',
+                        borderRadius: '8px',
+                        border: `1px solid ${themeTokens.colors.border}`,
+                        backgroundColor: '#FFFFFF',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '14px', fontWeight: 800, color: '#111827' }}>
+                              {enq.looking_for}
+                            </span>
+                            <span style={{ fontSize: '11px', fontFamily: 'monospace', color: '#64748B', fontWeight: 700 }}>
+                              #{enq.enquiry_id}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#475569', marginTop: '4px' }}>
+                            Budget: <strong>₹{(enq.budget_min ?? 0).toLocaleString('en-IN')} - ₹{(enq.budget_max ?? 0).toLocaleString('en-IN')}</strong> ({enq.transaction_type?.toUpperCase()})
+                          </div>
+                        </div>
+                        <Badge label={enq.status.replace(/_/g, ' ')} variant={enq.status === 'deal_closed' ? 'success' : enq.status === 'aborted' ? 'danger' : 'neutral'} />
+                      </div>
+
+                      {enq.preferred_societies?.length > 0 && (
+                        <div style={{ fontSize: '11px', color: '#64748B', marginTop: '6px' }}>
+                          Preferred Societies: {enq.preferred_societies.join(', ')}
+                        </div>
+                      )}
+                      {enq.notes && (
+                        <div style={{ fontSize: '11px', color: '#334155', fontStyle: 'italic', marginTop: '4px' }}>
+                          "{enq.notes}"
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            );
+          })()}
 
           {/* TAB: Visits */}
           {activeTab === 'visits' && (

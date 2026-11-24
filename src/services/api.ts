@@ -387,7 +387,7 @@ export const api = {
     request<any>(`/customers/${customerId}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
   // Enquiries
-  getEnquiries: (params: { search?: string; status?: string; transaction_type?: string; customer_id?: string; page?: number } = {}) => {
+  getEnquiries: (params: { search?: string; status?: string; transaction_type?: string; customer_id?: string; page?: number; active_only?: boolean } = {}) => {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, val]) => {
       if (val !== undefined && val !== null && val !== '' && val !== 'all') {
@@ -397,6 +397,8 @@ export const api = {
     return request<{ items: any[]; total: number; page: number; pages: number }>(`/enquiries?${searchParams.toString()}`);
   },
   getEnquiry: (enquiryId: string) => request<any>(`/enquiries/${enquiryId}`),
+  getEnquiryTimeline: (enquiryId: string) =>
+    request<{ enquiry_id: string; events: Array<{ id: string; type: string; event_type: string; actor_name: string; actor_role: string; title: string; description: string; timestamp: string }> }>(`/enquiries/${enquiryId}/timeline`),
   createEnquiry: (data: any) =>
     request<any>('/enquiries', { method: 'POST', body: JSON.stringify(data) }),
   updateEnquiry: (enquiryId: string, data: any) =>

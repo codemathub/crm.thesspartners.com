@@ -28,6 +28,7 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
   onClearTargetIds,
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | 'open_pool' | 'today' | 'completed'>('all');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [visits, setVisits] = useState<Visit[]>([]);
   const [total, setTotal] = useState(0);
   const [openClaimsCount, setOpenClaimsCount] = useState(0);
@@ -61,6 +62,7 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
   const [completeVisitItem, setCompleteVisitItem] = useState<Visit | null>(null);
   const [outcome, setOutcome] = useState('Liked Property');
   const [remarks, setRemarks] = useState('');
+  const [dealAmount, setDealAmount] = useState<string>('');
 
   // Reschedule Modal
   const [rescheduleItem, setRescheduleItem] = useState<Visit | null>(null);
@@ -75,13 +77,33 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
   const [reassignItem, setReassignItem] = useState<Visit | null>(null);
   const [reassignExec, setReassignExec] = useState('');
 
+  const formatLocalDate = (d: Date): string => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const getCalendarDays = () => {
+    const days: Date[] = [];
+    const now = new Date();
+    for (let i = -7; i <= 13; i++) {
+      const d = new Date(now);
+      d.setDate(now.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  };
+
   const fetchVisits = async () => {
     setLoading(true);
     try {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = formatLocalDate(new Date());
       const params: any = { search: searchQuery || undefined };
 
-      if (activeTab === 'open_pool') {
+      if (selectedDate) {
+        params.date = selectedDate;
+      } else if (activeTab === 'open_pool') {
         params.open_claims_only = true;
       } else if (activeTab === 'today') {
         params.date = todayStr;
@@ -114,7 +136,7 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
   useEffect(() => {
     fetchVisits();
     fetchUsers();
-  }, [activeTab]);
+  }, [activeTab, selectedDate]);
 
   const handleCreateVisit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,9 +179,10 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
     try {
       if (outcome === 'Deal Closed') {
         await api.closeVisitDeal(completeVisitItem.visit_id, {
+          deal_amount: dealAmount ? Number(dealAmount) : undefined,
           final_remarks: remarks.trim() || undefined,
         });
-        alert(`🏆 Deal closed directly from visit! Property '${completeVisitItem.property_id}' status updated to ${completeVisitItem.property_transaction_type === 'rent' ? 'Rented' : 'Sold'}.`);
+        alert(`🏆 Deal closed directly from visit! Property '${completeVisitItem.property_id}' status updated to ${completeVisitItem.property_transaction_type === 'rent' ? 'Rented' : 'Sold'} and enquiry closed.`);
       } else if (outcome === 'Aborted') {
         await api.abortVisitDeal(completeVisitItem.visit_id, {
           reason: remarks.trim() || 'Client decided not to proceed after site visit.',
@@ -173,6 +196,7 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
         });
       }
       setCompleteVisitItem(null);
+      setDealAmount('');
       fetchVisits();
     } catch (err: any) {
       alert(err.message || 'Could not mark visit completed.');
@@ -235,16 +259,16 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
     },
     {
       key: 'scheduled_at',
-      header: 'Scheduled Time',
+      header: 'Scheduled Date & Time',
       render: (v) => {
         const d = new Date(v.scheduled_at);
         return (
           <div>
             <div style={{ fontWeight: 700, color: themeTokens.colors.textPrimary }}>
-              {d.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
+              {d.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
             </div>
-            <div style={{ fontSize: '11px', color: themeTokens.colors.textSecondary }}>
-              {d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+            <div style={{ fontSize: '12px', fontWeight: 800, color: '#4338CA' }}>
+              {d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
             </div>
           </div>
         );
@@ -476,6 +500,119 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
 
       {/* Main Content Card */}
       <Card>
+        {/* Calendly-Style Interactive Date Picker Strip */}
+        <div style={{ marginBottom: '20px', padding: '14px 16px', backgroundColor: '#F8FAFC', borderRadius: '10px', border: `1px solid ${themeTokens.colors.border}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Calendar size={16} color="#4338CA" />
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#1E293B' }}>
+                CALENDLY SCHEDULE BROWSER
+              </span>
+              {selectedDate && (
+                <span style={{ fontSize: '12px', backgroundColor: '#EEF2FF', color: '#4338CA', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                  Active Filter: {new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => setSelectedDate(formatLocalDate(new Date()))}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #CBD5E1',
+                  backgroundColor: selectedDate === formatLocalDate(new Date()) ? '#4338CA' : '#FFFFFF',
+                  color: selectedDate === formatLocalDate(new Date()) ? '#FFFFFF' : '#475569',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Today
+              </button>
+              {selectedDate && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedDate(null)}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #FCA5A5',
+                    backgroundColor: '#FEF2F2',
+                    color: '#DC2626',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Clear Date (All)
+                </button>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#64748B' }}>Jump to:</span>
+                <input
+                  type="date"
+                  value={selectedDate || ''}
+                  onChange={(e) => setSelectedDate(e.target.value || null)}
+                  style={{
+                    padding: '4px 8px',
+                    borderRadius: '5px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '11px',
+                    backgroundColor: '#FFFFFF',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Horizontal scrollable date pills */}
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '6px' }}>
+            {getCalendarDays().map((day) => {
+              const dayStr = formatLocalDate(day);
+              const isSelected = selectedDate === dayStr;
+              const isToday = dayStr === formatLocalDate(new Date());
+
+              return (
+                <div
+                  key={dayStr}
+                  onClick={() => setSelectedDate(isSelected ? null : dayStr)}
+                  style={{
+                    minWidth: '64px',
+                    padding: '8px 6px',
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    border: isSelected ? '2px solid #4338CA' : isToday ? '2px solid #6366F1' : '1px solid #E2E8F0',
+                    backgroundColor: isSelected ? '#4338CA' : isToday ? '#EEF2FF' : '#FFFFFF',
+                    color: isSelected ? '#FFFFFF' : '#1E293B',
+                    boxShadow: isSelected ? '0 2px 4px rgba(67, 56, 202, 0.25)' : 'none',
+                    userSelect: 'none',
+                  }}
+                >
+                  <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', color: isSelected ? '#E0E7FF' : isToday ? '#4338CA' : '#64748B' }}>
+                    {day.toLocaleDateString('en-IN', { weekday: 'short' })}
+                  </div>
+                  <div style={{ fontSize: '16px', fontWeight: 800, marginTop: '2px' }}>
+                    {day.getDate()}
+                  </div>
+                  <div style={{ fontSize: '9px', fontWeight: 600, color: isSelected ? '#C7D2FE' : '#94A3B8' }}>
+                    {day.toLocaleDateString('en-IN', { month: 'short' })}
+                  </div>
+                  {isToday && (
+                    <div style={{ fontSize: '8px', fontWeight: 800, color: isSelected ? '#FFFFFF' : '#4338CA', marginTop: '2px' }}>
+                      TODAY
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Navigation Tabs */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: `1px solid ${themeTokens.colors.border}`, paddingBottom: '12px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -647,6 +784,21 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
                 <option value="Aborted">❌ Abort Enquiry (Record Reason & Cancel)</option>
               </select>
             </div>
+
+            {outcome === 'Deal Closed' && (
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
+                  Closed Deal Amount (₹)
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g. 25000"
+                  value={dealAmount}
+                  onChange={(e) => setDealAmount(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${themeTokens.colors.border}`, fontSize: '13px' }}
+                />
+              </div>
+            )}
 
             <div>
               <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>

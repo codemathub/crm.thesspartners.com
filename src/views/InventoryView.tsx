@@ -15,7 +15,6 @@ import {
   RefreshCw,
   Download,
   Upload,
-  Users,
   Phone,
   MessageSquare,
   Copy,
@@ -29,7 +28,6 @@ import {
 } from 'lucide-react';
 import { api, Property, Society, MasterDataOption, AdditionalCharge, validateMobileNumber } from '../services/api';
 import { ExcelImportModal } from '../components/ExcelImportModal';
-import { PropertyMatchedCustomersModal } from '../components/PropertyMatchedCustomersModal';
 import { Customer360Modal } from '../components/Customer360Modal';
 
 export interface InventoryViewProps {
@@ -41,7 +39,7 @@ export interface InventoryViewProps {
 export const InventoryView: React.FC<InventoryViewProps> = ({
   initialPropertyId,
   onClearInitialPropertyId,
-  onOpenCustomer360,
+  onOpenCustomer360: _onOpenCustomer360,
 }) => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [total, setTotal] = useState(0);
@@ -56,8 +54,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   const [filterPropertyType, setFilterPropertyType] = useState<string>('all');
   const [includeArchived, setIncludeArchived] = useState(false);
 
-  // Matched Prospective Customers Modal & 360 State
-  const [matchedCustomerProp, setMatchedCustomerProp] = useState<Property | null>(null);
+  // Customer 360 State
   const [customer360Id, setCustomer360Id] = useState<string | null>(null);
 
   // Master Data state for forms & filters
@@ -442,14 +439,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
       render: (p) => (
         <div style={{ display: 'flex', gap: '6px' }}>
           <Button
-            label="Matched Clients"
-            icon={<Users size={12} />}
-            variant="primary"
-            size="sm"
-            onClick={() => setMatchedCustomerProp(p)}
-          />
-          <Button
-            label=""
+            label="View Dossier"
             icon={<Eye size={13} />}
             variant="outline"
             size="sm"
@@ -1100,17 +1090,6 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
               {/* Action Buttons in Header */}
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <Button
-                  label="Matched Clients"
-                  icon={<Users size={14} />}
-                  variant="primary"
-                  size="sm"
-                  onClick={() => {
-                    const p = selectedProperty;
-                    setSelectedProperty(null);
-                    setMatchedCustomerProp(p);
-                  }}
-                />
-                <Button
                   label="Share via WhatsApp"
                   icon={<Share2 size={14} />}
                   variant="outline"
@@ -1457,17 +1436,6 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           fetchInventory();
         }}
         defaultSheetType="properties"
-      />
-
-      {/* Matched Prospective Customers Modal */}
-      <PropertyMatchedCustomersModal
-        property={matchedCustomerProp}
-        isOpen={!!matchedCustomerProp}
-        onClose={() => setMatchedCustomerProp(null)}
-        onOpenCustomer360={(custId) => {
-          if (onOpenCustomer360) onOpenCustomer360(custId);
-          else setCustomer360Id(custId);
-        }}
       />
 
       {/* 360 Degree Customer Modal */}

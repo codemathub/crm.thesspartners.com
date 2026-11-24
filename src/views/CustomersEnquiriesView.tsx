@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Table, Column } from '../components/ui/Table';
 import { Modal } from '../components/ui/Modal';
 import { themeTokens } from '../theme/tokens';
-import { Search, Plus, UserPlus, FileText, AlertTriangle, Eye, Sparkles, Share2, Download, Upload } from 'lucide-react';
+import { Search, Plus, UserPlus, FileText, AlertTriangle, Eye, Sparkles, Share2, Download, Upload, Phone, MessageCircle, Calendar, CheckCircle2, Clock, UserCheck } from 'lucide-react';
 import { api, validateMobileNumber } from '../services/api';
 import { ExcelImportModal } from '../components/ExcelImportModal';
 import { Customer360Modal } from '../components/Customer360Modal';
@@ -43,7 +43,15 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
   const [enquirySearch, setEnquirySearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterTransaction, setFilterTransaction] = useState('all');
+  const [activeOnly, setActiveOnly] = useState<boolean>(true);
   const [loadingEnquiries, setLoadingEnquiries] = useState(false);
+
+  // Enquiry Detail Drawer / Modal State
+  const [selectedEnquiryDetail, setSelectedEnquiryDetail] = useState<any | null>(null);
+  const [enquiryTimeline, setEnquiryTimeline] = useState<any[]>([]);
+  const [loadingTimeline, setLoadingTimeline] = useState<boolean>(false);
+  const [timelineNote, setTimelineNote] = useState('');
+  const [submittingTimelineNote, setSubmittingTimelineNote] = useState(false);
 
   // Excel Import / Export State (Phase 13 / PRD 5.19)
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -143,6 +151,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
         search: enquirySearch.trim() || undefined,
         status: filterStatus !== 'all' ? filterStatus : undefined,
         transaction_type: filterTransaction !== 'all' ? filterTransaction : undefined,
+        active_only: activeOnly,
       });
       setEnquiries(res.items);
       setEnquiryTotal(res.total);
@@ -150,6 +159,40 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
       // Handle error
     } finally {
       setLoadingEnquiries(false);
+    }
+  };
+
+  const openEnquiryDetail = async (enquiry: any) => {
+    setSelectedEnquiryDetail(enquiry);
+    setLoadingTimeline(true);
+    try {
+      const res = await api.getEnquiryTimeline(enquiry.enquiry_id);
+      setEnquiryTimeline(res.events || []);
+    } catch (err: any) {
+      console.error('Failed to load timeline:', err);
+      setEnquiryTimeline([]);
+    } finally {
+      setLoadingTimeline(false);
+    }
+  };
+
+  const handleAddTimelineNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEnquiryDetail || !timelineNote.trim()) return;
+    setSubmittingTimelineNote(true);
+    try {
+      await api.createFollowUp({
+        enquiry_id: selectedEnquiryDetail.enquiry_id,
+        scheduled_at: new Date().toISOString(),
+        notes: timelineNote.trim(),
+      });
+      setTimelineNote('');
+      const res = await api.getEnquiryTimeline(selectedEnquiryDetail.enquiry_id);
+      setEnquiryTimeline(res.events || []);
+    } catch (err: any) {
+      alert(`Could not log note: ${err.message}`);
+    } finally {
+      setSubmittingTimelineNote(false);
     }
   };
 
@@ -165,7 +208,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
       else fetchEnquiries();
     }, 200);
     return () => clearTimeout(timer);
-  }, [activeTab, filterStatus, filterTransaction, custTypeFilter, custPriorityFilter, customerSearch, enquirySearch]);
+  }, [activeTab, filterStatus, filterTransaction, activeOnly, custTypeFilter, custPriorityFilter, customerSearch, enquirySearch]);
 
   // Duplicate phone checker on phone input blur
   const handleCheckPhone = async () => {
@@ -411,15 +454,28 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
         <span
           onClick={(ev) => {
             ev.stopPropagation();
-            const targetId = e.customer_id || e.customer_phone || e.customer_name;
-            if (targetId) setCustomer360Id(targetId);
+            openEnquiryDetail(e);
           }}
           style={{ fontWeight: 800, color: themeTokens.colors.primaryDark, cursor: 'pointer' }}
-          title="Click to view Customer 360° Dossier"
+          title="Click to view full Enquiry Details & Timeline"
         >
           {e.enquiry_id}
         </span>
       ),
+    },
+    {
+      key: 'created_at',
+      header: 'Date & Time',
+      render: (e) => {
+        if (!e.created_at) return <span style={{ color: '#94A3B8' }}>—</span>;
+        const d = new Date(e.created_at);
+        return (
+          <div style={{ fontSize: '11px', color: '#475569', minWidth: '105px' }}>
+            <div style={{ fontWeight: 600 }}>{d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+            <div style={{ color: '#94A3B8' }}>{d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+          </div>
+        );
+      },
     },
     {
       key: 'customer_name',
@@ -490,15 +546,12 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
       render: (e) => (
         <div style={{ display: 'flex', gap: '6px' }} onClick={(ev) => ev.stopPropagation()}>
           <Button
-            label="360°"
-            icon={<Eye size={12} />}
+            label="Details"
+            icon={<FileText size={12} />}
             variant="outline"
             size="sm"
-            onClick={() => {
-              const targetId = e.customer_id || e.customer_phone || e.customer_name;
-              if (targetId) setCustomer360Id(targetId);
-            }}
-            title="Open 360° Customer Profile"
+            onClick={() => openEnquiryDetail(e)}
+            title="Open Enquiry Details & Executive Timeline"
           />
           <Button
             label="Matches"
@@ -640,6 +693,43 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
 
           {activeTab === 'enquiries' ? (
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div style={{ display: 'flex', backgroundColor: '#E2E8F0', borderRadius: '6px', padding: '2px' }}>
+                <button
+                  type="button"
+                  onClick={() => setActiveOnly(true)}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: '5px',
+                    border: 'none',
+                    backgroundColor: activeOnly ? '#4338CA' : 'transparent',
+                    color: activeOnly ? '#FFFFFF' : '#475569',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  Active Only
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveOnly(false)}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: '5px',
+                    border: 'none',
+                    backgroundColor: !activeOnly ? '#4338CA' : 'transparent',
+                    color: !activeOnly ? '#FFFFFF' : '#475569',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  All / History
+                </button>
+              </div>
+
               <select
                 value={filterTransaction}
                 onChange={(e) => setFilterTransaction(e.target.value)}
@@ -740,10 +830,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
               columns={enquiryColumns}
               data={enquiries}
               keyExtractor={(e) => e.enquiry_id}
-              onRowClick={(e) => {
-                const targetId = e.customer_id || e.customer_phone || e.customer_name;
-                if (targetId) setCustomer360Id(targetId);
-              }}
+              onRowClick={(e) => openEnquiryDetail(e)}
             />
           )
         ) : (
@@ -1294,6 +1381,387 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
         }}
         defaultSheetType="enquiries"
       />
+
+      {/* Comprehensive Enquiry Detail & Action Modal */}
+      {selectedEnquiryDetail && (
+        <Modal
+          isOpen={!!selectedEnquiryDetail}
+          onClose={() => setSelectedEnquiryDetail(null)}
+          title={`Enquiry Dossier — #${selectedEnquiryDetail.enquiry_id}`}
+          maxWidth="900px"
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '80vh', overflowY: 'auto' }}>
+            {/* Top Bar with Status and Creation Date */}
+            <div
+              style={{
+                padding: '12px 16px',
+                backgroundColor: '#F8FAFC',
+                borderRadius: '8px',
+                border: `1px solid ${themeTokens.colors.border}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '8px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontWeight: 800, fontSize: '16px', color: themeTokens.colors.primaryDark }}>
+                  #{selectedEnquiryDetail.enquiry_id}
+                </span>
+                <Badge
+                  label={selectedEnquiryDetail.status.replace('_', ' ').toUpperCase()}
+                  variant={
+                    selectedEnquiryDetail.status === 'deal_closed'
+                      ? 'success'
+                      : selectedEnquiryDetail.status === 'visit_scheduled'
+                      ? 'primary'
+                      : selectedEnquiryDetail.status === 'aborted'
+                      ? 'danger'
+                      : 'warning'
+                  }
+                />
+                <Badge
+                  label={selectedEnquiryDetail.transaction_type ? selectedEnquiryDetail.transaction_type.toUpperCase() : 'RENT'}
+                  variant="neutral"
+                />
+              </div>
+
+              <div style={{ fontSize: '12px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Clock size={13} color="#64748B" />
+                <span>
+                  Created:{' '}
+                  {selectedEnquiryDetail.created_at
+                    ? new Date(selectedEnquiryDetail.created_at).toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })
+                    : 'Earlier'}
+                </span>
+              </div>
+            </div>
+
+            {/* Main Content Grid: Left specs & client, Right timeline */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              {/* Left Column: Customer & Enquiry Specs */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {/* Customer Details Box */}
+                <div
+                  style={{
+                    padding: '14px',
+                    borderRadius: '8px',
+                    border: `1px solid ${themeTokens.colors.border}`,
+                    backgroundColor: '#FFFFFF',
+                  }}
+                >
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#475569', letterSpacing: '0.04em', marginBottom: '8px' }}>
+                    CLIENT CONTACT
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#1E293B' }}>
+                        {selectedEnquiryDetail.customer_name}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
+                        Phone: {selectedEnquiryDetail.customer_phone || 'Not available'}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {selectedEnquiryDetail.customer_phone && (
+                        <>
+                          <Button
+                            label="Call"
+                            icon={<Phone size={12} />}
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              window.location.href = `tel:${selectedEnquiryDetail.customer_phone}`;
+                            }}
+                          />
+                          <Button
+                            label="WA"
+                            icon={<MessageCircle size={12} color="#16A34A" />}
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const clean = selectedEnquiryDetail.customer_phone.replace(/[^0-9]/g, '');
+                              window.open(`https://wa.me/${clean}`, '_blank');
+                            }}
+                          />
+                        </>
+                      )}
+                      <Button
+                        label="360°"
+                        icon={<Eye size={12} />}
+                        size="sm"
+                        variant="primary"
+                        onClick={() => {
+                          const target = selectedEnquiryDetail.customer_id || selectedEnquiryDetail.customer_phone;
+                          if (target) setCustomer360Id(target);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Requirement Specifications */}
+                <div
+                  style={{
+                    padding: '14px',
+                    borderRadius: '8px',
+                    border: `1px solid ${themeTokens.colors.border}`,
+                    backgroundColor: '#FFFFFF',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}
+                >
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#475569', letterSpacing: '0.04em' }}>
+                    REQUIREMENT SPECIFICATIONS
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div style={{ padding: '8px 10px', backgroundColor: '#F8FAFC', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '10px', color: '#64748B' }}>LOOKING FOR</div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>
+                        {selectedEnquiryDetail.looking_for}
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '8px 10px', backgroundColor: '#F8FAFC', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '10px', color: '#64748B' }}>BUDGET RANGE</div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>
+                        ₹{(selectedEnquiryDetail.budget_min ?? 0).toLocaleString('en-IN')} - ₹{(selectedEnquiryDetail.budget_max ?? 0).toLocaleString('en-IN')}
+                        <span style={{ fontSize: '10px', fontWeight: 500, color: '#64748B' }}>
+                          {selectedEnquiryDetail.transaction_type === 'rent' ? '/mo' : ''}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedEnquiryDetail.preferred_locations?.length > 0 && (
+                    <div style={{ fontSize: '12px', color: '#334155' }}>
+                      <span style={{ fontWeight: 600 }}>Locations: </span>
+                      {selectedEnquiryDetail.preferred_locations.join(', ')}
+                    </div>
+                  )}
+
+                  {selectedEnquiryDetail.preferred_societies?.length > 0 && (
+                    <div style={{ fontSize: '12px', color: '#334155' }}>
+                      <span style={{ fontWeight: 600 }}>Societies: </span>
+                      {selectedEnquiryDetail.preferred_societies.join(', ')}
+                    </div>
+                  )}
+
+                  {selectedEnquiryDetail.tenant_type && (
+                    <div style={{ fontSize: '12px', color: '#334155' }}>
+                      <span style={{ fontWeight: 600 }}>Tenant Preference: </span>
+                      {selectedEnquiryDetail.tenant_type}
+                    </div>
+                  )}
+
+                  {selectedEnquiryDetail.notes && (
+                    <div style={{ padding: '8px 10px', backgroundColor: '#FFFBEB', borderRadius: '6px', border: '1px solid #FDE68A' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 700, color: '#B45309' }}>ENQUIRY NOTES</div>
+                      <div style={{ fontSize: '12px', color: '#78350F', marginTop: '2px' }}>
+                        {selectedEnquiryDetail.notes}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Single Enquiry Action Suite */}
+                <div
+                  style={{
+                    padding: '14px',
+                    borderRadius: '8px',
+                    border: `1px solid ${themeTokens.colors.border}`,
+                    backgroundColor: '#FFFFFF',
+                  }}
+                >
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#475569', letterSpacing: '0.04em', marginBottom: '10px' }}>
+                    EXECUTIVE ACTIONS
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <Button
+                      label="Smart Matches"
+                      icon={<Sparkles size={13} />}
+                      variant="primary"
+                      size="sm"
+                      onClick={() => {
+                        const enq = selectedEnquiryDetail;
+                        openMatchesModal(enq);
+                      }}
+                    />
+                    <Button
+                      label="Update Status"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setStatusModalEnquiry(selectedEnquiryDetail);
+                        setNewStatus(selectedEnquiryDetail.status);
+                      }}
+                    />
+                    <Button
+                      label="Close Deal"
+                      variant="primary"
+                      size="sm"
+                      onClick={() => {
+                        setStatusModalEnquiry(selectedEnquiryDetail);
+                        setNewStatus('deal_closed');
+                      }}
+                    />
+                    <Button
+                      label="Drop / Abort"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setStatusModalEnquiry(selectedEnquiryDetail);
+                        setNewStatus('aborted');
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Executive Action Timeline */}
+              <div
+                style={{
+                  padding: '14px',
+                  borderRadius: '8px',
+                  border: `1px solid ${themeTokens.colors.border}`,
+                  backgroundColor: '#FFFFFF',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 800, color: '#1E293B' }}>
+                    EXECUTIVE ACTION TIMELINE
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#64748B' }}>
+                    {enquiryTimeline.length} events logged
+                  </span>
+                </div>
+
+                {/* Log Quick Follow-up Note Form */}
+                <form onSubmit={handleAddTimelineNote} style={{ display: 'flex', gap: '6px' }}>
+                  <input
+                    type="text"
+                    placeholder="Log executive follow-up, call note or action..."
+                    value={timelineNote}
+                    onChange={(e) => setTimelineNote(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '7px 10px',
+                      borderRadius: '6px',
+                      border: `1px solid ${themeTokens.colors.border}`,
+                      fontSize: '12px',
+                    }}
+                  />
+                  <Button
+                    label={submittingTimelineNote ? '...' : '+ Note'}
+                    size="sm"
+                    variant="primary"
+                    type="submit"
+                    disabled={submittingTimelineNote || !timelineNote.trim()}
+                  />
+                </form>
+
+                {/* Timeline Stream */}
+                {loadingTimeline ? (
+                  <div style={{ padding: '30px', textAlign: 'center', color: '#64748B', fontSize: '12px' }}>
+                    Loading action timeline...
+                  </div>
+                ) : enquiryTimeline.length === 0 ? (
+                  <div style={{ padding: '24px', textAlign: 'center', color: '#94A3B8', fontSize: '12px' }}>
+                    No activity logged yet for this enquiry.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '360px', overflowY: 'auto', paddingRight: '4px' }}>
+                    {enquiryTimeline.map((item: any, idx: number) => {
+                      const isVisit = item.type === 'visit';
+                      const isFollowup = item.type === 'followup';
+                      const isStatus = item.event_type?.includes('status') || item.type === 'status_change';
+                      const isCreated = item.event_type?.includes('created');
+
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            padding: '10px 12px',
+                            borderRadius: '6px',
+                            backgroundColor: isVisit ? '#F0FDF4' : isFollowup ? '#FFFBEB' : '#F8FAFC',
+                            border: `1px solid ${isVisit ? '#BBF7D0' : isFollowup ? '#FDE68A' : '#E2E8F0'}`,
+                            fontSize: '12px',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: '#1E293B' }}>
+                              {isVisit ? (
+                                <Calendar size={13} color="#15803D" />
+                              ) : isFollowup ? (
+                                <Clock size={13} color="#B45309" />
+                              ) : isCreated ? (
+                                <CheckCircle2 size={13} color="#4338CA" />
+                              ) : isStatus ? (
+                                <UserCheck size={13} color="#4F46E5" />
+                              ) : (
+                                <FileText size={13} color="#475569" />
+                              )}
+                              <span>
+                                {isVisit
+                                  ? `Site Showing: ${item.status || 'Scheduled'}`
+                                  : isFollowup
+                                  ? 'Executive Note / Follow-up'
+                                  : item.title || item.event_type || 'Activity'}
+                              </span>
+                            </div>
+                            <span style={{ fontSize: '10px', color: '#64748B' }}>
+                              {item.created_at || item.timestamp || item.scheduled_at
+                                ? new Date(item.created_at || item.timestamp || item.scheduled_at).toLocaleDateString('en-IN', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true,
+                                  })
+                                : ''}
+                            </span>
+                          </div>
+
+                          {/* Event Description & Remarks */}
+                          <div style={{ marginTop: '4px', color: '#334155' }}>
+                            {item.notes || item.remarks || item.outcome || item.details?.notes || (item.details ? JSON.stringify(item.details) : '')}
+                          </div>
+
+                          {/* Executive Name */}
+                          <div style={{ marginTop: '4px', fontSize: '10px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span>Executive:</span>
+                            <strong style={{ color: '#0F172A' }}>
+                              {item.actor_name || item.executive_name || item.created_by_name || 'System / Auto'}
+                            </strong>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Bottom Close */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: `1px solid ${themeTokens.colors.border}`, paddingTop: '10px' }}>
+              <Button label="Close" variant="outline" size="sm" onClick={() => setSelectedEnquiryDetail(null)} />
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* 360 Degree Customer Modal */}
       <Customer360Modal
