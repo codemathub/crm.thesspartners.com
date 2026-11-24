@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatDateTime } from '../utils/dateUtils';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -1379,11 +1380,11 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
               color: themeTokens.colors.textSecondary,
             }}>
               <div>
-                <span>Created: {new Date(selectedProperty.created_at).toLocaleString()}</span>
+                <span>Created: {formatDateTime(selectedProperty.created_at)}</span>
                 {selectedProperty.created_by_name && <span> by <strong>{selectedProperty.created_by_name}</strong></span>}
                 {selectedProperty.updated_at && (
                   <span style={{ marginLeft: '10px' }}>
-                    • Updated: {new Date(selectedProperty.updated_at).toLocaleString()}
+                    • Updated: {formatDateTime(selectedProperty.updated_at)}
                   </span>
                 )}
               </div>

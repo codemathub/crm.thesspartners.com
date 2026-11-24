@@ -15,6 +15,7 @@ import {
   CalendarCheck,
 } from 'lucide-react';
 import { api, Visit } from '../services/api';
+import { parseUtcDate } from '../utils/dateUtils';
 
 export interface VisitsViewProps {
   initialEnquiryId?: string | null;
@@ -261,7 +262,7 @@ export const VisitsView: React.FC<VisitsViewProps> = ({
       key: 'scheduled_at',
       header: 'Scheduled Date & Time',
       render: (v) => {
-        const d = new Date(v.scheduled_at);
+        const d = parseUtcDate(v.scheduled_at);
         return (
           <div>
             <div style={{ fontWeight: 700, color: themeTokens.colors.textPrimary }}>

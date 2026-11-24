@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { themeTokens } from '../theme/tokens';
 import { api, InAppNotification } from '../services/api';
+import { parseUtcDate } from '../utils/dateUtils';
 
 interface NotificationPopoverProps {
   onNavigate: (view: string) => void;
@@ -47,7 +48,7 @@ function playChime() {
 // Format relative time (e.g. "Just now", "5m ago", "2h ago", "Nov 24")
 function formatRelativeTime(dateString: string): string {
   try {
-    const date = new Date(dateString);
+    const date = parseUtcDate(dateString);
     const now = new Date();
     const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
 

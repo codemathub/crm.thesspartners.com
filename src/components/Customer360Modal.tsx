@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatDateTime, formatDate } from '../utils/dateUtils';
 import { Modal } from './ui/Modal';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
@@ -220,7 +221,7 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
                       <Mail size={12} /> {cust.email}
                     </span>
                   )}
-                  <span>Registered: {new Date(cust.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  <span>Registered: {formatDate(cust.created_at)}</span>
                 </div>
               </div>
             </div>
@@ -427,7 +428,7 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
                           </div>
                           <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>
                             <Clock size={11} style={{ display: 'inline', marginRight: '4px' }} />
-                            {v.scheduled_at ? new Date(v.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Pending Time'}
+                            {v.scheduled_at ? formatDateTime(v.scheduled_at) : 'Pending Time'}
                             {v.assigned_name && ` • Exec: ${v.assigned_name}`}
                           </div>
                         </div>
@@ -619,7 +620,7 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
                           {v.property_id ? `Showing: Unit #${v.property_id}` : 'Site Visit'}
                         </div>
                         <div style={{ fontSize: '12px', color: '#475569', marginTop: '4px' }}>
-                          Scheduled: {v.scheduled_at ? new Date(v.scheduled_at).toLocaleString() : 'TBD'}
+                          Scheduled: {v.scheduled_at ? formatDateTime(v.scheduled_at) : 'TBD'}
                         </div>
                         {v.assigned_name && (
                           <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>
@@ -683,7 +684,7 @@ export const Customer360Modal: React.FC<Customer360ModalProps> = ({
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>
-                        {f.scheduled_date || new Date(f.created_at).toLocaleDateString()}
+                        {formatDateTime(f.scheduled_date || f.created_at)}
                       </span>
                       <Badge label={f.status} variant={f.status === 'completed' ? 'success' : 'neutral'} />
                     </div>

@@ -7,6 +7,7 @@ import { Modal } from '../components/ui/Modal';
 import { themeTokens } from '../theme/tokens';
 import { Search, Plus, UserPlus, FileText, AlertTriangle, Eye, Sparkles, Share2, Download, Upload, Phone, MessageCircle, Calendar, CheckCircle2, Clock, UserCheck } from 'lucide-react';
 import { api, validateMobileNumber } from '../services/api';
+import { parseUtcDate, formatDateTime, formatDate, formatTime } from '../utils/dateUtils';
 import { ExcelImportModal } from '../components/ExcelImportModal';
 import { Customer360Modal } from '../components/Customer360Modal';
 
@@ -508,11 +509,11 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
       header: 'Date & Time',
       render: (e) => {
         if (!e.created_at) return <span style={{ color: '#94A3B8' }}>—</span>;
-        const d = new Date(e.created_at);
+        const d = parseUtcDate(e.created_at);
         return (
           <div style={{ fontSize: '11px', color: '#475569', minWidth: '105px' }}>
-            <div style={{ fontWeight: 600 }}>{d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
-            <div style={{ color: '#94A3B8' }}>{d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+            <div style={{ fontWeight: 600 }}>{formatDate(d)}</div>
+            <div style={{ color: '#94A3B8' }}>{formatTime(d)}</div>
           </div>
         );
       },
@@ -1569,17 +1570,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
               <div style={{ fontSize: '12px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Clock size={13} color="#64748B" />
                 <span>
-                  Created:{' '}
-                  {selectedEnquiryDetail.created_at
-                    ? new Date(selectedEnquiryDetail.created_at).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                      })
-                    : 'Earlier'}
+                  Created: {formatDateTime(selectedEnquiryDetail.created_at)}
                 </span>
               </div>
             </div>
@@ -1863,13 +1854,7 @@ export const CustomersEnquiriesView: React.FC<CustomersEnquiriesViewProps> = ({
                             </div>
                             <span style={{ fontSize: '10px', color: '#64748B' }}>
                               {item.created_at || item.timestamp || item.scheduled_at
-                                ? new Date(item.created_at || item.timestamp || item.scheduled_at).toLocaleDateString('en-IN', {
-                                    day: '2-digit',
-                                    month: 'short',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true,
-                                  })
+                                ? formatDateTime(item.created_at || item.timestamp || item.scheduled_at)
                                 : ''}
                             </span>
                           </div>
